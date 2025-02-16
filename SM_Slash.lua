@@ -479,7 +479,7 @@ function FindBuff( obuff, unit, item)
 		return "track",b;
 	end
 	local c=nil;
-	for i=1, 16 do
+	for i=1, 32 do -- Turtle WoW increased the buff cap to 32
 		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		tooltip:SetUnitBuff(unit, i);
 		b = textleft1:GetText();
@@ -492,7 +492,7 @@ function FindBuff( obuff, unit, item)
 		--c = b;
 	end
 	c=nil;
-	for i=1, 16 do
+	for i=1, 64 do -- Turtle WoW increased the debuff cap to 64
 		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		tooltip:SetUnitDebuff(unit, i);
 		b = textleft1:GetText();
