@@ -1,3 +1,4 @@
+This fork changes FindBuff() to match the buff/debuff caps modified by Turtle WoW.
 
 3.18 new improved user interface by Horu:
 Add option to change macros window size (removed old background textures)
