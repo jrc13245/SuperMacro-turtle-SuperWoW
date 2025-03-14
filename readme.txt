@@ -1,5 +1,7 @@
 This fork changes FindBuff() to match the buff/debuff caps modified by Turtle WoW.
+*USE WITH SUPERWOW ONLY
 
+3.19 SuperWoW 511 character length macro support - Torio 
 3.18 new improved user interface by Horu:
 Add option to change macros window size (removed old background textures)
 Add option to change window script font size
