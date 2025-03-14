@@ -189,7 +189,7 @@
 				</Texture>
 				<FontString name="SuperMacroFrameSelectedMacroName" inherits="GameFontNormalLarge" justifyH="LEFT">
 					<Size>
-						<AbsDimension x="256" y="16"/>
+						<AbsDimension x="511" y="16"/>
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="SuperMacroFrameSelectedMacroBackground" relativePoint="TOPLEFT">
@@ -252,7 +252,7 @@
 			<Frame name="SuperMacroFrameRegularFrame" setAllPoints="true">
 				<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="SuperMacroFrameGeneralMacroText" inherits="GameFontNormal" justifyH="CENTER" text="GENERAL_MACROS" letters="255">
+				<FontString name="SuperMacroFrameGeneralMacroText" inherits="GameFontNormal" justifyH="CENTER" text="GENERAL_MACROS" letters="511">
 					<Size>
 						<AbsDimension x="256" y="16"/>
 					</Size>
@@ -264,7 +264,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="SuperMacroFrameCharacterMacroText" inherits="GameFontNormal" justifyH="CENTER" text="CHARACTER_SPECIFIC_MACROS" letters="255">
+				<FontString name="SuperMacroFrameCharacterMacroText" inherits="GameFontNormal" justifyH="CENTER" text="CHARACTER_SPECIFIC_MACROS" letters="511">
 					<Size>
 						<AbsDimension x="256" y="16"/>
 					</Size>
@@ -644,7 +644,7 @@
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
-					<EditBox name="SuperMacroFrameText" multiLine="true" letters="255" autoFocus="false" nonspacewrap="false">
+					<EditBox name="SuperMacroFrameText" multiLine="true" letters="511" autoFocus="false" nonspacewrap="false">
 						<Size>
 							<AbsDimension x="246" y="100"/>
 						</Size>
