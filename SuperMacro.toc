@@ -12,3 +12,4 @@
 ## Version: 3.19
 SuperMacro.xml
 SuperMacroOptions.xml
+SuperMacro_EscapeFix.lua
