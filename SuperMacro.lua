@@ -307,7 +307,7 @@ function SuperMacroButton_OnClick( button )
 	SuperMacroPopupFrame:Hide();
 	SuperMacroFrameText:ClearFocus();
 	if ( button=="RightButton" ) then
-		RunMacro(id);
+		SuperMacro_RunMacro(id);
 	end
 	SuperMacroSelectExtend(SuperMacroFrameSelectedMacroName:GetText())
 end
@@ -663,7 +663,9 @@ function SuperMacroFrame_OnEvent(event)
 	end
 end
 
-function RunMacro(index)
+-- Internal namespaced function - use this for all internal calls
+-- This ensures internal logic won't break if another addon overwrites RunMacro
+function SuperMacro_RunMacro(index)
 	-- close edit boxes, then enter body line by line
 	if ( SuperMacroFrame_SaveMacro ) then
 		SuperMacroFrame_SaveMacro();
@@ -698,7 +700,12 @@ function RunMacro(index)
 	--SM_MacroRunning = nil;
 end
 
-Macro=RunMacro;
+-- Global wrapper for user convenience (delegates to namespaced internal function)
+function RunMacro(index)
+	return SuperMacro_RunMacro(index)
+end
+
+Macro=SuperMacro_RunMacro;
 
 function RunSuperMacro(index)
 	if ( SuperMacroFrame_SaveSuperMacro ) then

@@ -77,7 +77,7 @@ function UseAction( id, click, selfcast)
 	if ( SM_ACTION[id] ) then
 		RunSuperMacro(SM_ACTION[id]);
 	elseif ( GetActionText(id) ) then
-		RunMacro(GetActionText(id));
+		SuperMacro_RunMacro(GetActionText(id));
 	else
 		oldUseAction( id, click, selfcast );
 	end

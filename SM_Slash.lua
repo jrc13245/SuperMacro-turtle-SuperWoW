@@ -123,7 +123,7 @@ SlashCmdList["MACRO"] = function(msg)
 	if(not msg or msg == "") then
 		ShowUIPanel(SuperMacroFrame);
 	else
-		RunMacro(msg);
+		SuperMacro_RunMacro(msg);
 	end
 end
 
@@ -687,7 +687,7 @@ function SuperMacro_EventsFrame_OnEvent()
 			if ( strfind(macro, "^SUPER") ) then
 				RunSuperMacro( strsub( macro, 6) );
 			else
-				RunMacro( macro );
+				SuperMacro_RunMacro( macro );
 			end
 		end
 	end
