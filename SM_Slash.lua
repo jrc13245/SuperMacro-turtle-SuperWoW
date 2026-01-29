@@ -217,6 +217,24 @@ SlashCmdList["SMIN"] = function(msg)
 	SuperMacro_InEnter(s,c,r);
 end
 
+-- in sec, do cmd
+SlashCmdList["SMIN"] = function(msg)
+	local _, _, s, r, c = strfind(msg, "(%d+h?%d*m?%d*s?)(%+?)%s+(.*)");
+	if (not c or TrimSpaces(c) == "") then return end
+	c = gsub(c, "\\n", "\n");
+	SuperMacro_InEnter(s, c, r);
+end
+
+-- in from-to sec do cmd, randomised
+SlashCmdList["SMINR"] = function(msg)
+	local _, _, q, f, h, t, r, c = string.find(msg, "(%?)(%d+h?%d*m?%d*s?)(-)(%d+h?%d*m?%d*s?)(%+?)%s+(.*)");
+	if (not c or TrimSpaces(c) == "") then return end
+	if q ~= "?" then return end
+	if h ~= "-" then return end
+	c = gsub(c, "\\n", "\n");
+	SuperMacro_InEnterRandom(q, f, h, t, r, c);
+end
+
 SM_SHIFT_FORM = { bear=1,aquatic=2,cat=3,travel=4,moonkin=5, stealth=1, battle=1,defend=2,berzerk=3 };
 
 SlashCmdList["SMSHIFT"] = function(msg)
@@ -272,6 +290,38 @@ function SuperMacro_InEnter( sec, cmd, rep)
 end
 
 SM_IN=SuperMacro_InEnter;
+
+function SuperMacro_InEnterRandom(questionmark, from, hyphen, to, rep, cmd)
+	if (not questionmark or not from or not hyphen or not to or not cmd) then return end
+	local t = SM_INFRAME.events
+	local seconds = math.random(from, to)
+	if (strfind(seconds, '[hms]')) then
+		seconds = gsub(seconds, '^(%d+)(h?)(%d*)(m?)(%d*)(s?)$', function(hd, h, md, m, sd, s)
+			local a = 0;
+			if (h == "h") then
+				a = a + hd * 3600
+			else
+				md = hd .. md
+			end;
+			if (m == "m") then
+				a = a + md * 60
+			else
+				sd = md .. sd
+			end;
+			if (sd ~= "") then a = a + sd end;
+			return a;
+		end);
+	end
+	s = GetTime() + seconds;
+	t[s] = {};
+	t[s].cmd = cmd;
+	t[s].sec = seconds;
+	t[s].rep = rep and rep or "";
+	t.n = t.n + 1;
+	SM_INFRAME:Show();
+end
+
+SM_INR = SuperMacro_InEnterRandom;
 
 function SM_INFRAME_OnUpdate( )
 	local t=this.events;
@@ -389,10 +439,16 @@ function GetItemCooldown(item)
 end
 
 function FindLastEmptyBagSlot()
-	for i=NUM_BAG_FRAMES,0,-1 do
-		for j=GetContainerNumSlots(i),1,-1 do
-			if not GetContainerItemInfo(i,j) then
-				return i,j;
+	local specialBags =
+	"Gnoll Skin Bandolier,Bandolier of the Night Watch,Heavy Leather Ammo Pouch,Ribbly's Bandolier,Thick Leather Ammo Pouch,Hunting Ammo Sack,Medium Shot Pouch,Small Ammo Pouch,Small Leather Pouch,Small Shot Pouch,Core Felcloth Bag,D'Sak's Small bag,Felcloth Bag,Box of Souls,Small Soul Pouch,Soul Pouch,Big Bag of Enchantment,Enchanted Mageweave Pouch,Enchanted Runecloth Bag,Cenarion Herb Bag,Herb Pouch,Satchel of Cenarius,Ancient Sinew Wrapped Lamina,Harpy Hide Quiver,Swtfeather Quiver,Heavy Quiver,Quickdraw Quiver,Quiver of the Night Watch,Ribbly's Quiver,Hunting Quiver,Light Leather Quiver,Light Quiver,Medium Quiver,Small Quiver"
+	for i = NUM_BAG_FRAMES, 0, -1 do
+		local bn = GetBagName(i)
+
+		if string.find(specialBags, bn) == nil then
+			for j = GetContainerNumSlots(i), 1, -1 do
+				if not GetContainerItemInfo(i, j) then
+					return i, j
+				end
 			end
 		end
 	end
@@ -430,93 +486,96 @@ function ItemLinkToName(link)
 	end
 end
 
-function FindBuff( obuff, unit, item)
-	local buff=strlower(obuff);
-	local tooltip=SM_Tooltip;
-	local textleft1=getglobal(tooltip:GetName().."TextLeft1");
-	if ( not unit ) then
-		unit ='player';
-	elseif ( unit == "mouseover" ) then
+function FindBuff(obuff, unit, item)
+	if (not unit) then
+		unit = 'player';
+	elseif (unit == "mouseover") then
 		local frame = GetMouseFocus()
-		if ( frame.label and frame.id ) then
+		if (frame.label and frame.id) then
 			unit = frame.label .. frame.id
 		end
 	end
+
+	local buff;
+	if type(obuff) == "number" then
+		buff = obuff;
+	else
+		buff = strlower(obuff);
+	end
+	-- search for tracking buff first
+	for i = 0, 32 do
+		local buffId = GetPlayerBuffID(i);
+		local name, _, _, _, _ = SpellInfo(buffId)
+		if type(buff) == "number" then
+			if buffId == buff then
+				if strfind(strlower(name), "track") then return "track", name end
+			end
+		else
+			if name and strfind(strlower(name), buff) and strfind(strlower(name), "track") then return "track", name end
+		end
+	end
+
+	-- search buffs on unit
+	for i = 1, 32 do -- Turtle WoW increased the buff cap to 32
+		local _, _, spellId = UnitBuff(unit, i)
+		local name, _, _, _, _ = SpellInfo(spellId)
+		if type(buff) == "number" then
+			if spellId == buff then
+				return "buff", i, name;
+			end
+		else
+			if name and strfind(strlower(name), buff) then
+				return "buff", i, name;
+			end
+		end
+	end
+
+	-- search debuffs on unit
+	for i = 1, 64 do -- Turtle WoW increased the debuff cap to 64
+		local _, _, spellId = UnitDebuff(unit, i)
+		local name, _, _, _, _ = SpellInfo(spellId)
+		if type(buff) == "number" then
+			if spellId == buff then
+				return "debuff", i, name;
+			end
+		else
+			if name and strfind(strlower(name), buff) then
+				return "debuff", i, name;
+			end
+		end
+	end
+
+	-- finally, check weapon enchants
+	local tooltip = SM_Tooltip;
 	local my, me, mc, oy, oe, oc = GetWeaponEnchantInfo();
-	if ( my ) then
+	if (my) then
 		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetInventoryItem( unit, 16);
-		for i=1, 32 do
-			local text = getglobal("SM_TooltipTextLeft"..i):GetText();
-			if ( not text ) then
+		tooltip:SetInventoryItem(unit, 16);
+		for i = 1, 32 do
+			local text = getglobal("SM_TooltipTextLeft" .. i):GetText();
+			if (not text) then
 				break;
-			elseif ( strfind(strlower(text), buff) ) then
+			elseif (strfind(strlower(text), buff)) then
 				tooltip:Hide();
-				return "main",me, mc;
+				return "main", me, mc;
 			end
 		end
 		tooltip:Hide();
-	elseif ( oy ) then
+	elseif (oy) then
 		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetInventoryItem( unit, 17);
-		for i=1, 32 do
-			local text = getglobal("SM_TooltipTextLeft"..i):GetText();
-			if ( not text ) then
+		tooltip:SetInventoryItem(unit, 17);
+		for i = 1, 32 do
+			local text = getglobal("SM_TooltipTextLeft" .. i):GetText();
+			if (not text) then
 				break;
-			elseif ( strfind(strlower(text), buff) ) then
+			elseif (strfind(strlower(text), buff)) then
 				tooltip:Hide();
 				return "off", oe, oc;
 			end
 		end
 		tooltip:Hide();
 	end
-	if ( item ) then return end
-	tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-	tooltip:SetTrackingSpell();
-	local b = textleft1:GetText();
-	if ( b and strfind(strlower(b), buff) ) then
-		tooltip:Hide();
-		return "track",b;
-	end
-	local c=nil;
-	for i=1, 32 do -- Turtle WoW increased the buff cap to 32
-		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetUnitBuff(unit, i);
-		b = textleft1:GetText();
-		tooltip:Hide();
-		if ( b and strfind(strlower(b), buff) ) then
-			return "buff", i, b;
-		elseif ( c==b ) then
-			break;
-		end
-		--c = b;
-	end
-	c=nil;
-	for i=1, 64 do -- Turtle WoW increased the debuff cap to 64
-		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetUnitDebuff(unit, i);
-		b = textleft1:GetText();
-		tooltip:Hide();
-		if ( b and strfind(strlower(b), buff) ) then
-			return "debuff", i, b;
-		elseif ( c==b) then
-			break;
-		end
-		--c = b;
-	end
-	-- Turtle WoW overflow debuffs appear in buff slots - check there too
-	c=nil;
-	for i=1, 32 do
-		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-		tooltip:SetUnitBuff(unit, i);
-		b = textleft1:GetText();
-		tooltip:Hide();
-		if ( b and strfind(strlower(b), buff) ) then
-			return "debuff", i, b;
-		elseif ( c==b ) then
-			break;
-		end
-	end
+	if (item) then return end
 	tooltip:Hide();
 end
 
@@ -757,3 +816,4 @@ function PrintTable(table, rowname, level)
 end
 
 Printt=PrintTable;
+
