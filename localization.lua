@@ -70,6 +70,8 @@ if GetLocale() == "ruRU" then
 	SLASH_SMCHANNEL2 = "/smchannel";
 	SLASH_SMIN1 = "/in";
 	SLASH_SMIN2 = "/smin";
+	SLASH_SMINR1 = "/inr";
+	SLASH_SMINR2 = "/sminr";
 	SLASH_SMSHIFT1 = "/shift";
 	SLASH_SMSHIFT2 = "/smshift";
 	SLASH_SMCRAFT1 = "/craft";
@@ -206,6 +208,8 @@ else
 	SLASH_SMCHANNEL2 = "/smchannel";
 	SLASH_SMIN1 = "/in";
 	SLASH_SMIN2 = "/smin";
+	SLASH_SMINR1 = "/inr";
+	SLASH_SMINR2 = "/sminr";    
 	SLASH_SMSHIFT1 = "/shift";
 	SLASH_SMSHIFT2 = "/smshift";
 	SLASH_SMCRAFT1 = "/craft";
@@ -271,4 +275,3 @@ else
 	BINDING_NAME_SM_SUPERMACRO9 = "SuperMacro 9";
 	BINDING_NAME_SM_SUPERMACRO10 = "SuperMacro 10";
 end
-

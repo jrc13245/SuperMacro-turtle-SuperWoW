@@ -157,6 +157,10 @@ Ex. /in 1m /print 1 min passed -- 1m = 1 minute, 1h = 1 hour, 1s = 1 second
 Ex. /script SM_IN("1m","/print 1 min passed") -- same as above, note 1m in quotes
 Ex. /in 1h30m5s+ /print repeat every hour and 30 mins and 5 seconds
 
+## /inr seconds[+] command, /sminr, SM_INR("?", fromseconds, "-", toseconds, command[, repeat])
+Execute command in random(from,to) seconds seconds. Use + after sec to repeat. Separate multiple commands with \n. Does not cast spells or use items. Only randomises once.
+Ex. /inr ?5-10+ /silly
+
 ## lastActionUsed
 Variable that stores the current or last action's id. Usually same id as the current button you press. Useful for items and supermacros to check IsActionInRange.
 Example to see if action is in range:
@@ -335,4 +339,3 @@ Useful default aliases include:
 ;ph for player health
 ;phm for player max health
 ;p2h for party2 health (and so on for party3, party4, party5)
-
