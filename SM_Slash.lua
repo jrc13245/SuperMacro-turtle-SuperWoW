@@ -591,18 +591,18 @@ function SpellReady(spell)
 end
 
 function CancelBuff(...)
-	for j=1, getn(arg) do
-   	local buff = strlower(arg[j]);
-   	for i=0, 32 do
-   		SM_Tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-   		SM_Tooltip:SetPlayerBuff(i);
-   		local name = SM_TooltipTextLeft1:GetText();
-   		if ( not name ) then break end;
-   		if ( strfind(strlower(name), buff) ) then
-   			CancelPlayerBuff(i);
-   		end
-   		SM_Tooltip:Hide();
-   	end
+	for j = 1, getn(arg) do
+		local buff = strlower(arg[j]);
+
+		for i = 0, 32 do
+			local buffId = GetPlayerBuffID(i);
+			local name, _, _, _, _ = SpellInfo(buffId)
+			if name and strfind(strlower(name), buff) then
+				CancelPlayerBuff(i);
+			elseif not name then
+				break;
+			end
+		end
 	end
 end
 
@@ -817,3 +817,6 @@ end
 
 Printt=PrintTable;
 
+-- implemented FindBuff using SuperWoW's method (only Weapon Enchants still use tooltip scanning)
+-- implemented CancelBuff using SuperWoW's method
+-- added /inr and /sminr commands for random timer
