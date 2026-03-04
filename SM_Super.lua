@@ -12,8 +12,14 @@ local oldGetActionTexture=GetActionTexture;
 
 function PickupMacro(macroid, supername)
 	if ( supername ) then
+		local texture = GetSuperMacroInfo(supername,"texture");
+		if ( not texture ) then
+			SM_CURSOR=nil;
+			oldPickupMacro(macroid);
+			return;
+		end
 		SM_CURSOR=supername;
-		local tempicon=SM_MACRO_ICON[GetSuperMacroInfo(supername,"texture")];
+		local tempicon=SM_MACRO_ICON[texture];
 		local macroname, macroicon=GetMacroInfo(1);
 		macroicon=SM_MACRO_ICON[macroicon];
 		EditMacro(1,macroname, tempicon);
@@ -43,13 +49,20 @@ end
 function PickupAction(id)
 	if ( SM_ACTION[id] ) then
 		SM_CURSOR=SM_ACTION[id];
-		local tempicon=SM_MACRO_ICON[GetSuperMacroInfo(SM_CURSOR,"texture")];
-		local macroname, macroicon=GetMacroInfo(1);
-		macroicon=SM_MACRO_ICON[macroicon];
-		EditMacro(1,macroname, tempicon);
-		SM_ACTION[id]=nil;
-		oldPickupAction(id);
-		EditMacro(1,macroname, macroicon);
+		local texture = GetSuperMacroInfo(SM_CURSOR,"texture");
+		if ( texture ) then
+			local tempicon=SM_MACRO_ICON[texture];
+			local macroname, macroicon=GetMacroInfo(1);
+			macroicon=SM_MACRO_ICON[macroicon];
+			EditMacro(1,macroname, tempicon);
+			SM_ACTION[id]=nil;
+			oldPickupAction(id);
+			EditMacro(1,macroname, macroicon);
+		else
+			SM_CURSOR=nil;
+			SM_ACTION[id]=nil;
+			oldPickupAction(id);
+		end
 	else
 		SM_CURSOR=nil;
 		SM_ACTION[id]=nil;

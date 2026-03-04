@@ -46,27 +46,37 @@ function SM_ActionButton_SetTooltip(actionid)
 		-- for supermacros
 		local superfound = SM_ACTION[actionid];
 		if ( superfound ) then
-			macro,_,body=GetSuperMacroInfo(superfound);
-			GameTooltipTextLeft1:SetText(macro);
-			GameTooltip:Show();
+			local smacro, _, sbody = GetSuperMacroInfo(superfound);
+			if ( smacro ) then
+				macro, body = smacro, sbody;
+				GameTooltipTextLeft1:SetText(macro);
+				GameTooltip:Show();
+			else
+				SM_ACTION[actionid] = nil;
+				superfound = nil;
+			end
 		end
+
+		if ( not macro ) then return; end
 
 		if ( SM_VARS.macroTip1==1 ) then
 			local actiontype, spell = SM_GetActionSpell(macro, superfound);
 			if ( actiontype=="spell" ) then
 				local id, book = SM_FindSpell(spell);
-				GameTooltip:SetSpell(id, book);
-			if TheoryCraft_AddTooltipInfo then
-				TheoryCraft_AddTooltipInfo(GameTooltip)
-			else	
-				local s, r = GetSpellName(id, book);
-				if ( r ) then
-					GameTooltipTextRight1:SetText("|cff00ffff"..r.."|r");
-					GameTooltipTextRight1:Show();
-					GameTooltip:Show();
+				if ( id ) then
+					GameTooltip:SetSpell(id, book);
+					if TheoryCraft_AddTooltipInfo then
+						TheoryCraft_AddTooltipInfo(GameTooltip)
+					else
+						local s, r = GetSpellName(id, book);
+						if ( r ) then
+							GameTooltipTextRight1:SetText("|cff00ffff"..r.."|r");
+							GameTooltipTextRight1:Show();
+							GameTooltip:Show();
+						end
+					end
+					return;
 				end
-			end
-				return;
 			elseif ( actiontype=="item" ) then
 				local id, book = FindItem(spell);
 				if ( book ) then
@@ -100,8 +110,10 @@ function SM_ActionButton_SetTooltip(actionid)
 	-- show crit info for Attack
 	if ( GameTooltipTextLeft1:GetText()=="Attack" ) then
 		id, book = FindSpell("Attack","");
-		GameTooltip:SetSpell(id, book);
-		GameTooltip:Show();
+		if ( id ) then
+			GameTooltip:SetSpell(id, book);
+			GameTooltip:Show();
+		end
 	end
 end
 
@@ -121,7 +133,17 @@ function GetActionCooldown( actionid )
 		--  for supermacros
 		local superfound = SM_ACTION[actionid];
 		if ( superfound ) then
-			name,icon,body=GetSuperMacroInfo(superfound);
+			local sname, sicon, sbody = GetSuperMacroInfo(superfound);
+			if ( sname ) then
+				name, icon, body = sname, sicon, sbody;
+			else
+				SM_ACTION[actionid] = nil;
+				superfound = nil;
+			end
+		end
+
+		if ( not name ) then
+			return oldGetActionCooldown( actionid );
 		end
 
 		local buttonName = this:GetName() or ("BActionButton"..actionid);	-- The part after 'or' is to support Bongos [Fixed by Threewords]
@@ -144,7 +166,9 @@ function GetActionCooldown( actionid )
 				pic:SetTexture(texture);
 			end
 			local id, book = SM_FindSpell(spell);
-			return GetSpellCooldown( id, book);
+			if ( id ) then
+				return GetSpellCooldown( id, book);
+			end
 		elseif ( actiontype=="item") then
 			if ( SM_VARS.replaceIcon==1 and texture and pic) then
 				pic:SetTexture(texture);

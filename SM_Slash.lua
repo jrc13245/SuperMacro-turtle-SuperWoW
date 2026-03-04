@@ -525,6 +525,7 @@ function SpellReady(spell)
     while a~=spell do
         i=i+1
         a=GetSpellName(i,"spell")
+        if ( not a ) then return; end
     end
     if GetSpellCooldown(i,"spell") == 0 then
         return true
@@ -571,9 +572,9 @@ end
 
 function SM_Channel(spell)
 	local cf = CastingBarFrame;
-	local sp = SM_FindSpell(spell);
+	local sp, book = SM_FindSpell(spell);
 	if ( not sp ) then return; end
-	local cd = GetSpellCooldown(sp);
+	local cd = GetSpellCooldown(sp, book);
 	if ( not cf.channeling and cd<=1.5 ) then
 		cast(spell);
 	end
