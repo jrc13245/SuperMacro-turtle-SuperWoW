@@ -772,6 +772,11 @@ function RunLine(...)
 			if ( i ) then
 				CastSpell(i,book);
 			end
+		elseif ( string.find(text, "^/use%s") or string.find(text, "^/equip%s") ) then
+			local item = gsub(text, "^/%S+%s+(.*)", "%1");
+			if ( strlen(item) > 0 ) then
+				use(item);
+			end
 		else
 			if ( string.find(text,"^/script ")) then
 				RunScript(gsub(text,"^/script ",""));
